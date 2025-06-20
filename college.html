@@ -1,165 +1,683 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ABUAD AI College Chat</title>
-  <style>
-    * { box-sizing: border-box; margin:0; padding:0 }
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #121212; color: #eee;
-      display: flex; flex-direction: column; height:100vh; overflow:hidden;
-    }
-    header {
-      background: #004f97; color:white;
-      padding:12px; display:flex; align-items:center; user-select:none;
-    }
-    #backBtn {
-      font-size:1.4rem; cursor:pointer; margin-right:12px;
-    }
-    #collegeName {
-      flex:1; text-align:center;
-    }
-    .chat-container {
-      flex:1; overflow-y:auto;
-      padding:12px; display:flex; flex-direction:column; gap:10px;
-      background:#1a1a1a;
-    }
-    .message {
-      max-width:70%; padding:12px 16px; border-radius:20px;
-      line-height:1.4; font-size:1rem; word-wrap:break-word;
-    }
-    .user {
-      align-self:flex-end; background:#1e8e3e; color:white;
-      border-bottom-right-radius:6px;
-    }
-    .ai {
-      align-self:flex-start; background:#333; color:#ddd;
-      border-bottom-left-radius:6px;
-    }
-    .input-area {
-      display:flex; padding:12px; background:#222;
-    }
-    .input-area input {
-      flex:1; padding:12px; font-size:1rem;
-      border:none; outline:none; color:#eee;
-      background:#333; border-radius:20px;
-    }
-    .input-area input::placeholder { color:#bbb; }
-    .input-area button {
-      margin-left:8px; padding:0 18px;
-      background:#1e8e3e; border:none;
-      color:white; font-size:1rem;
-      border-radius:20px; cursor:pointer;
-      transition: background .2s;
-    }
-    .input-area button:disabled { background:#555; cursor:not-allowed; }
-    .input-area button:hover:not(:disabled) { background:#166622; }
-    /* loading spinner */
-    .spinner {
-      width:24px; height:24px;
-      border:3px solid #555;
-      border-top:3px solid #1e8e3e;
-      border-radius:50%;
-      animation:spin 1s linear infinite;
-      align-self:flex-start;
-    }
-    @keyframes spin { 0% { transform:rotate(0);} 100% {transform:rotate(360deg);} }
-    .chat-container::-webkit-scrollbar {
-      width:8px;
-      background:transparent;
-    }
-    .chat-container::-webkit-scrollbar-thumb {
-      background:#666; border-radius:4px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ABUAD AI - College Chat</title>
+<style>
+  /* Basic resets and styling */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+  body.light {
+    background-color: #f5f5f5;
+    color: #222;
+  }
+  header {
+    background: #004f97;
+    color: white;
+    padding: 12px 16px;
+    font-weight: bold;
+    font-size: 1.3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  header div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header img {
+    height: 36px;
+  }
+  .settings-button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+    user-select: none;
+  }
+  .settings-menu {
+    position: absolute;
+    top: 56px;
+    right: 12px;
+    background: #333;
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+    display: none;
+    z-index: 20;
+    width: 200px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .settings-menu button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 1rem;
+    user-select: none;
+  }
+  .settings-menu button:hover {
+    background: #555;
+  }
+  .settings-menu hr {
+    border: none;
+    border-top: 1px solid #555;
+    margin: 8px 0;
+  }
+  body.light .settings-menu {
+    background: #ddd;
+    color: #000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  body.light .settings-menu button {
+    color: #000;
+  }
+  body.light .settings-menu button:hover {
+    background: #bbb;
+  }
+  body.light .settings-menu hr {
+    border-top: 1px solid #aaa;
+  }
+
+  /* Layout container */
+  #container {
+    display: flex;
+    flex-grow: 1;
+    height: calc(100vh - 56px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Chat history sidebar */
+  #chatHistory {
+    background: #222;
+    width: 280px;
+    max-width: 80vw;
+    color: #ccc;
+    overflow-y: auto;
+    padding: 12px;
+    box-shadow: 3px 0 8px rgba(0,0,0,0.7);
+    position: absolute;
+    top: 0;
+    left: -300px;
+    height: 100%;
+    transition: left 0.3s ease;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #chatHistory.light {
+    background: #eee;
+    color: #222;
+    box-shadow: 3px 0 8px rgba(0,0,0,0.15);
+  }
+  #chatHistory.show {
+    left: 0;
+    position: relative;
+    box-shadow: none;
+  }
+  #chatHistory h2 {
+    margin: 0 0 8px 0;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #555;
+    padding-bottom: 6px;
+  }
+  #chatHistory.light h2 {
+    border-color: #aaa;
+  }
+  .history-item {
+    background: #333;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #eee;
+  }
+  .history-item:hover {
+    background: #4a90e2;
+    color: white;
+  }
+  #chatHistory.light .history-item {
+    background: #ddd;
+    color: #222;
+  }
+  #chatHistory.light .history-item:hover {
+    background: #82b3ff;
+    color: #000;
+  }
+
+  /* Main chat area */
+  #chatArea {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background-color: #1a1a1a;
+    color: white;
+    overflow: hidden;
+  }
+  body.light #chatArea {
+    background-color: #fff;
+    color: #222;
+  }
+
+  /* Messages container */
+  #messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #666 transparent;
+  }
+  #messages::-webkit-scrollbar {
+    width: 8px;
+  }
+  #messages::-webkit-scrollbar-thumb {
+    background-color: #666;
+    border-radius: 4px;
+  }
+
+  /* Message bubble */
+  .message {
+    padding: 12px 16px;
+    border-radius: 12px;
+    max-width: 75%;
+    position: relative;
+    user-select: text;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    outline: none;
+  }
+  .message.user {
+    background-color: #2e8b57;
+    align-self: flex-end;
+    color: white;
+  }
+  .message.ai {
+    background-color: #333;
+    align-self: flex-start;
+    color: #ddd;
+  }
+  body.light .message.user {
+    background-color: #2ca02c;
+    color: white;
+  }
+  body.light .message.ai {
+    background-color: #eee;
+    color: #111;
+  }
+  .message[contenteditable="true"]:focus {
+    box-shadow: 0 0 6px 2px #4a90e2;
+    outline: none;
+  }
+
+  /* Timestamp */
+  .timestamp {
+    font-size: 0.7rem;
+    color: #aaa;
+    position: absolute;
+    bottom: -16px;
+    right: 12px;
+    user-select: none;
+  }
+  body.light .timestamp {
+    color: #666;
+  }
+
+  /* Input area */
+  #inputArea {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  #messageInput {
+    flex-grow: 1;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 24px;
+    border: none;
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    background-color: #222;
+    color: white;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    user-select: text;
+  }
+  #messageInput.light {
+    background-color: #f2f2f2;
+    color: #222;
+  }
+  #sendBtn {
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 0 20px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+  }
+  #sendBtn:hover {
+    background-color: #1476d9;
+  }
+  body.light #sendBtn {
+    background-color: #0073e6;
+    color: white;
+  }
+  body.light #sendBtn:hover {
+    background-color: #005bb5;
+  }
+
+  /* Scroll to bottom button */
+  #scrollBottomBtn {
+    position: absolute;
+    bottom: 60px;
+    right: 30px;
+    background: #1e90ff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: none;
+    z-index: 20;
+    user-select: none;
+  }
+  body.light #scrollBottomBtn {
+    background: #0073e6;
+  }
+
+</style>
 </head>
 <body>
-  <header>
-    <div id="backBtn" title="Back" role="button">←</div>
-    <div id="collegeName">Loading...</div>
-  </header>
+<header>
+  <div>
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/10/ABUAD_Logo.svg/256px-ABUAD_Logo.svg.png" alt="ABUAD Logo" />
+    <span>ABUAD AI - College Chat</span>
+  </div>
+  <button aria-haspopup="true" aria-expanded="false" id="settingsBtn" class="settings-button" title="Settings">⋮</button>
+  <nav id="settingsMenu" class="settings-menu" role="menu" aria-label="Settings menu" tabindex="-1">
+    <button id="toggleTheme" role="menuitem" tabindex="0">Toggle Dark/Light Mode</button>
+    <button id="toggleHistory" role="menuitem" tabindex="0">Show Chat History</button>
+    <hr />
+    <button id="clearMessages" role="menuitem" tabindex="0" style="color:#f55;">Clear All Messages</button>
+  </nav>
+</header>
 
-  <main class="chat-container" id="chatContainer"></main>
+<div id="container" role="main">
+  <aside id="chatHistory" aria-label="Chat history sidebar" tabindex="0">
+    <h2>Chat History</h2>
+    <div id="historyList" aria-live="polite"></div>
+  </aside>
 
-  <form class="input-area" id="chatForm">
-    <input id="messageInput" type="text" placeholder="Ask anything…" autocomplete="off" required>
-    <button type="submit">Send</button>
-  </form>
+  <section id="chatArea" aria-label="Chat area">
+    <div id="messages" aria-live="polite" aria-relevant="additions"></div>
+    <div id="inputArea">
+      <textarea id="messageInput" aria-label="Type your message" rows="2" spellcheck="false"></textarea>
+      <button id="sendBtn" aria-label="Send message">➤</button>
+    </div>
+  </section>
+</div>
 
-  <script>
-    // Your OpenRouter API key:
-    const API_KEY = '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';
+<button id="scrollBottomBtn" aria-label="Scroll to latest message">↓</button>
 
-    const chatContainer = document.getElementById('chatContainer');
-    const chatForm = document.getElementById('chatForm');
-    const messageInput = document.getElementById('messageInput');
-    const collegeNameDiv = document.getElementById('collegeName');
-    const backBtn = document.getElementById('backBtn');
+<script>
+  const apiKey = "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";
+  const messagesEl = document.getElementById("messages");
+  const inputEl = document.getElementById("messageInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const scrollBtn = document.getElementById("scrollBottomBtn");
+  const chatHistoryEl = document.getElementById("chatHistory");
+  const historyListEl = document.getElementById("historyList");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const settingsMenu = document.getElementById("settingsMenu");
+  const toggleThemeBtn = document.getElementById("toggleTheme");
+  const toggleHistoryBtn = document.getElementById("toggleHistory");
+  const clearMessagesBtn = document.getElementById("clearMessages");
 
-    const college = localStorage.getItem('selectedCollege') || 'Unknown College';
-    collegeNameDiv.textContent = college;
+  // State
+  let messages = [];
+  let chatHistoryVisible = false;
+  let theme = "dark";
 
-    backBtn.addEventListener('click', () => window.location.href = 'index.html');
-
-    function appendMessage(text, sender) {
-      const div = document.createElement('div');
-      div.className = 'message ' + sender;
-      div.textContent = text;
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    async function askGPT(question) {
-      const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-      const payload = {
-        model: 'gpt-4o',
-        messages: [
-          { role:'system', content:`You are ABUAD college assistant. College: ${college}.` },
-          { role:'user', content: question }
-        ],
-        temperature:0.7, max_tokens:600
-      };
+  // Load from localStorage
+  function loadState() {
+    const storedMessages = localStorage.getItem("abuadAI_messages");
+    if (storedMessages) {
       try {
-        const res = await fetch(endpoint, {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${API_KEY}` },
-          body:JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if(!res.ok) throw new Error(data.error?.message || res.statusText);
-        return data.choices[0].message.content.trim();
-      } catch(e) {
-        console.error(e);
-        return '⚠️ Error: ' + (e.message || 'Please try again later.');
+        messages = JSON.parse(storedMessages);
+      } catch {
+        messages = [];
       }
     }
+    const storedTheme = localStorage.getItem("abuadAI_theme");
+    if (storedTheme === "light" || storedTheme === "dark") {
+      theme = storedTheme;
+    }
+    const storedHistoryVisible = localStorage.getItem("abuadAI_historyVisible");
+    chatHistoryVisible = storedHistoryVisible === "true";
+  }
 
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = messageInput.value.trim();
-      if (!text) return;
+  // Save to localStorage
+  function saveState() {
+    localStorage.setItem("abuadAI_messages", JSON.stringify(messages));
+    localStorage.setItem("abuadAI_theme", theme);
+    localStorage.setItem("abuadAI_historyVisible", chatHistoryVisible.toString());
+  }
 
-      appendMessage(text, 'user');
-      messageInput.value = '';
-      messageInput.disabled = true;
-      chatForm.querySelector('button').disabled = true;
+  // Apply theme
+  function applyTheme() {
+    if (theme === "light") {
+      document.body.classList.add("light");
+      chatHistoryEl.classList.add("light");
+      inputEl.classList.add("light");
+    } else {
+      document.body.classList.remove("light");
+      chatHistoryEl.classList.remove("light");
+      inputEl.classList.remove("light");
+    }
+  }
 
-      const spinner = document.createElement('div');
-      spinner.className = 'spinner';
-      chatContainer.appendChild(spinner);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+  // Render messages in chat area
+  function renderMessages() {
+    messagesEl.innerHTML = "";
+    messages.forEach((msg, idx) => {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      div.classList.add(msg.role === "user" ? "user" : "ai");
+      div.setAttribute("contenteditable", msg.role === "user" ? "true" : "false");
+      div.setAttribute("role", "textbox");
+      div.setAttribute("aria-label", msg.role === "user" ? "Your message, editable" : "AI message");
+      div.dataset.idx = idx;
+      div.textContent = msg.content;
 
-      const reply = await askGPT(text);
+      // Timestamp
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "timestamp";
+      timeSpan.textContent = new Date(msg.timestamp).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+      div.appendChild(timeSpan);
 
-      spinner.remove();
-      appendMessage(reply, 'ai');
+      messagesEl.appendChild(div);
 
-      messageInput.disabled = false;
-      chatForm.querySelector('button').disabled = false;
-      messageInput.focus();
+      // Add event listeners only for user editable messages
+      if (msg.role === "user") {
+        div.addEventListener("keydown", onMessageEditKeyDown);
+        div.addEventListener("blur", onMessageEditBlur);
+      }
     });
-  </script>
+    scrollToBottom();
+  }
+
+  // Render chat history sidebar
+  function renderHistory() {
+    historyListEl.innerHTML = "";
+    if (messages.length === 0) {
+      const emptyMsg = document.createElement("div");
+      emptyMsg.textContent = "No messages yet.";
+      emptyMsg.style.opacity = "0.6";
+      historyListEl.appendChild(emptyMsg);
+      return;
+    }
+    // Show the last 20 messages in summary
+    messages.slice(-20).forEach((msg, idx) => {
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.tabIndex = 0;
+      item.textContent = (msg.role === "user" ? "You: " : "AI: ") + msg.content.substring(0, 30).replace(/\n/g," ") + (msg.content.length > 30 ? "…" : "");
+      item.dataset.idx = messages.length - 20 + idx;
+      item.addEventListener("click", () => {
+        focusMessage(parseInt(item.dataset.idx));
+      });
+      item.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          focusMessage(parseInt(item.dataset.idx));
+        }
+      });
+      historyListEl.appendChild(item);
+    });
+  }
+
+  // Focus message in main chat area and highlight
+  function focusMessage(idx) {
+    const msgDiv = messagesEl.querySelector(`.message[data-idx='${idx}']`);
+    if (msgDiv) {
+      msgDiv.scrollIntoView({behavior: "smooth", block: "center"});
+      msgDiv.focus();
+      msgDiv.style.boxShadow = "0 0 8px 3px #1e90ff";
+      setTimeout(() => {
+        msgDiv.style.boxShadow = "";
+      }, 2000);
+      if (msgDiv.getAttribute("contenteditable") === "true") {
+        // Place caret at end
+        placeCaretAtEnd(msgDiv);
+      }
+    }
+  }
+
+  // Place caret at end of contenteditable div
+  function placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined"
+      && typeof document.createRange != "undefined") {
+      let range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      let sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  // Scroll messages to bottom
+  function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    scrollBtn.style.display = "none";
+  }
+
+  // On messages container scroll, show/hide scroll button
+  messagesEl.addEventListener("scroll", () => {
+    const threshold = 50;
+    const nearBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < threshold;
+    if (!nearBottom) {
+      scrollBtn.style.display = "block";
+    } else {
+      scrollBtn.style.display = "none";
+    }
+  });
+
+  scrollBtn.addEventListener("click", scrollToBottom);
+
+  // On message edit (keydown)
+  function onMessageEditKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.target.blur();
+    }
+  }
+
+  // On message edit (blur) save changes
+  function onMessageEditBlur(e) {
+    const idx = e.target.dataset.idx;
+    if (idx !== undefined) {
+      const newText = e.target.textContent.trim();
+      if (newText !== messages[idx].content) {
+        messages[idx].content = newText;
+        messages[idx].timestamp = Date.now();
+        saveState();
+        renderHistory();
+      }
+    }
+  }
+
+  // Toggle settings menu
+  settingsBtn.addEventListener("click", () => {
+    const expanded = settingsBtn.getAttribute("aria-expanded") === "true";
+    settingsBtn.setAttribute("aria-expanded", String(!expanded));
+    if (settingsMenu.style.display === "block") {
+      settingsMenu.style.display = "none";
+    } else {
+      settingsMenu.style.display = "block";
+      settingsMenu.focus();
+    }
+  });
+
+  // Close settings menu on outside click or Escape
+  document.addEventListener("click", (e) => {
+    if (!settingsMenu.contains(e.target) && e.target !== settingsBtn) {
+      settingsMenu.style.display = "none";
+      settingsBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      settingsMenu.style.display = "none";
+      settingsBtn.setAttribute("aria-expanded", "false");
+      settingsBtn.focus();
+    }
+  });
+
+  // Toggle theme button
+  toggleThemeBtn.addEventListener("click", () => {
+    theme = theme === "dark" ? "light" : "dark";
+    applyTheme();
+    saveState();
+  });
+
+  // Toggle chat history sidebar
+  toggleHistoryBtn.addEventListener("click", () => {
+    chatHistoryVisible = !chatHistoryVisible;
+    updateHistoryVisibility();
+    saveState();
+  });
+
+  function updateHistoryVisibility() {
+    if (chatHistoryVisible) {
+      chatHistoryEl.classList.add("show");
+      toggleHistoryBtn.textContent = "Hide Chat History";
+    } else {
+      chatHistoryEl.classList.remove("show");
+      toggleHistoryBtn.textContent = "Show Chat History";
+    }
+  }
+
+  // Clear messages button
+  clearMessagesBtn.addEventListener("click", () => {
+    if (confirm("Are you sure you want to clear all messages?")) {
+      messages = [];
+      saveState();
+      renderMessages();
+      renderHistory();
+    }
+  });
+
+  // Send message
+  async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    appendMessage("user", text);
+    inputEl.value = "";
+    scrollToBottom();
+
+    try {
+      const aiReply = await queryGroqAPI(text);
+      appendMessage("assistant", aiReply);
+    } catch (err) {
+      appendMessage("assistant", "Error: Could not fetch response.");
+    }
+  }
+
+  // Append message and save state + render
+  function appendMessage(role, content) {
+    messages.push({role, content, timestamp: Date.now()});
+    saveState();
+    renderMessages();
+    renderHistory();
+  }
+
+  // Query Groq API for response
+  async function queryGroqAPI(prompt) {
+    // Groq API chat endpoint (v1/chat/completions)
+    // Documentation: https://docs.groq.ai/api-reference/chat-completions/create
+    const url = "https://api.groq.ai/v1/chat/completions";
+    const body = {
+      model: "gpt-4o-mini",
+      messages: [{role:"user", content: prompt}],
+      temperature: 0.7
+    };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status}`);
+    }
+    const data = await res.json();
+    if (!data.choices || data.choices.length === 0) {
+      throw new Error("No response from API");
+    }
+    return data.choices[0].message.content.trim();
+  }
+
+  // Handle send button click
+  sendBtn.addEventListener("click", () => {
+    sendMessage();
+  });
+
+  // Handle enter key in textarea to send message
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Initialize
+  function init() {
+    loadState();
+    applyTheme();
+    updateHistoryVisibility();
+    renderMessages();
+    renderHistory();
+  }
+  init();
+
+</script>
 </body>
 </html>
