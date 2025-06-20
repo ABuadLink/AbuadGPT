@@ -5,37 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ABUAD AI - Select College</title>
   <style>
-    /* Reset and basics */
     * {
       box-sizing: border-box;
     }
     body {
-      margin: 0; padding: 0;
+      margin: 0;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212;
-      color: #eee;
+      background-color: #f0f2f5;
+      color: #111;
       display: flex;
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
+      transition: background 0.3s, color 0.3s;
     }
-    body.light {
-      background-color: #f5f5f5;
-      color: #222;
+    body.dark {
+      background-color: #121212;
+      color: #eee;
     }
+
     header {
-      background: #004f97;
+      background: #002855;
       color: white;
       padding: 12px 16px;
       font-weight: bold;
       font-size: 1.3rem;
-      user-select: none;
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
     }
-    body.light header {
-      background: #0073e6;
+    header.light {
+      background: #005bbb;
+    }
+
+    header div {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header img {
+      height: 36px;
+    }
+
+    .settings-button {
+      background: transparent;
+      border: none;
       color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0 8px;
+      user-select: none;
     }
+
+    .settings-menu {
+      position: absolute;
+      top: 56px;
+      right: 12px;
+      background: #ffffff;
+      color: #111;
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+      z-index: 10;
+      width: 190px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .settings-menu button {
+      background: none;
+      border: none;
+      color: inherit;
+      padding: 8px 12px;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-size: 1rem;
+      user-select: none;
+    }
+    .settings-menu button:hover {
+      background: #f0f0f0;
+    }
+    .settings-menu hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 8px 0;
+    }
+
+    body.dark .settings-menu {
+      background: #333;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    body.dark .settings-menu button:hover {
+      background: #444;
+    }
+    body.dark .settings-menu hr {
+      border-top: 1px solid #555;
+    }
+
     main {
       flex-grow: 1;
       display: flex;
@@ -45,15 +113,15 @@
       padding: 16px;
       gap: 24px;
       overflow-y: auto;
+      text-align: center;
     }
+
     h1 {
       margin: 0;
       font-weight: 700;
       font-size: 2rem;
     }
-    body.light h1 {
-      color: #222;
-    }
+
     .college-list {
       display: flex;
       flex-wrap: wrap;
@@ -62,8 +130,9 @@
       max-width: 600px;
       width: 100%;
     }
+
     .college-btn {
-      background-color: #1e8e3e;
+      background-color: #007b5e;
       color: white;
       padding: 14px 28px;
       border: none;
@@ -71,81 +140,124 @@
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
-      user-select: none;
       transition: background-color 0.2s ease;
       flex: 1 1 140px;
       text-align: center;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      user-select: none;
     }
-    .college-btn:hover, .college-btn:focus {
-      background-color: #166622;
-      outline: none;
-      box-shadow: 0 0 8px #1e8e3e;
+    .college-btn:hover {
+      background-color: #005f46;
     }
-    body.light .college-btn {
-      background-color: #2ca02c;
-      color: white;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    }
-    body.light .college-btn:hover, body.light .college-btn:focus {
-      background-color: #1f7a1f;
-      box-shadow: 0 0 8px #2ca02c;
-    }
+
     footer {
       text-align: center;
       padding: 12px 16px;
       font-size: 0.9rem;
       color: #888;
-      user-select: none;
     }
-    body.light footer {
-      color: #444;
+    body.dark footer {
+      color: #aaa;
+    }
+
+    body.dark .college-btn {
+      background-color: #2ca02c;
+      color: #fff;
+    }
+    body.dark .college-btn:hover {
+      background-color: #1f7a1f;
     }
   </style>
 </head>
 <body>
-  <header>ABUAD AI - Select Your College</header>
+  <header id="pageHeader">
+    <div>
+      <img src="logo.png" alt="ABUAD Logo" />
+      <span>ABUAD AI - Select Your College</span>
+    </div>
+    <button class="settings-button" id="settingsBtn">⋮</button>
+    <div class="settings-menu" id="settingsMenu">
+      <button id="toggleTheme">Toggle Light/Dark Mode</button>
+      <button id="clearChats">Clear All Messages</button>
+      <hr />
+      <button onclick="openSupport()">Support & Help</button>
+      <button onclick="openAbout()">About</button>
+      <button onclick="openContact()">Contact</button>
+    </div>
+  </header>
+
   <main>
     <h1>Please select your college</h1>
-    <div class="college-list" role="list" aria-label="College selection list">
-      <button class="college-btn" data-college="MHS" role="listitem">MHS</button>
-      <button class="college-btn" data-college="Pharmacy" role="listitem">Pharmacy</button>
-      <button class="college-btn" data-college="Sciences" role="listitem">Sciences</button>
-      <button class="college-btn" data-college="SMS" role="listitem">SMS</button>
-      <button class="college-btn" data-college="Law" role="listitem">Law</button>
+    <div class="college-list">
+      <button class="college-btn" data-college="MHS">MHS</button>
+      <button class="college-btn" data-college="Pharmacy">Pharmacy</button>
+      <button class="college-btn" data-college="Sciences">Sciences</button>
+      <button class="college-btn" data-college="SMS">SMS</button>
+      <button class="college-btn" data-college="Law">Law</button>
     </div>
   </main>
+
   <footer>© 2025 ABUAD AI Chat</footer>
 
   <script>
-    // College selection: save to localStorage and go to college.html
-    document.querySelectorAll('.college-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const selectedCollege = btn.getAttribute('data-college');
-        localStorage.setItem('selectedCollege', selectedCollege);
-        window.location.href = 'college.html';
-      });
-      // Keyboard accessibility
-      btn.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          btn.click();
-        }
+    const body = document.body;
+    const header = document.getElementById("pageHeader");
+    const theme = localStorage.getItem("theme");
+
+    if (theme === "dark") {
+      body.classList.add("dark");
+    }
+
+    document.querySelectorAll(".college-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const college = btn.dataset.college;
+        localStorage.setItem("selectedCollege", college);
+        window.location.href = "college.html";
       });
     });
 
-    // Optional: Light/Dark theme follow system or saved setting (match college.html)
-    function applyTheme() {
-      const saved = localStorage.getItem('theme');
-      if (saved === 'light') {
-        document.body.classList.add('light');
-        document.body.classList.remove('dark');
-      } else {
-        document.body.classList.add('dark');
-        document.body.classList.remove('light');
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsMenu = document.getElementById("settingsMenu");
+
+    settingsBtn.addEventListener("click", () => {
+      settingsMenu.style.display =
+        settingsMenu.style.display === "block" ? "none" : "block";
+    });
+
+    document.getElementById("toggleTheme").addEventListener("click", () => {
+      body.classList.toggle("dark");
+      localStorage.setItem("theme", body.classList.contains("dark") ? "dark" : "light");
+      settingsMenu.style.display = "none";
+    });
+
+    document.getElementById("clearChats").addEventListener("click", () => {
+      if (confirm("Clear all saved messages?")) {
+        localStorage.removeItem("abuad_ai_messages");
+        alert("All messages cleared.");
       }
+      settingsMenu.style.display = "none";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+        settingsMenu.style.display = "none";
+      }
+    });
+
+    function openSupport() {
+      alert("For help or support, please email support@abuadai.com or contact the ICT department.");
+      settingsMenu.style.display = "none";
     }
-    applyTheme();
+
+    function openAbout() {
+      alert("ABUAD AI is a student-friendly chat assistant developed to aid learning and quick access to academic help.");
+      settingsMenu.style.display = "none";
+    }
+
+    function openContact() {
+      alert("Contact us at contact@abuadai.com or visit the ABUAD ICT building.");
+      settingsMenu.style.display = "none";
+    }
   </script>
 </body>
 </html>
