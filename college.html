@@ -1,161 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ABUAD AI College Chat</title>
   <style>
-    /* Basic reset */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin:0; padding:0 }
     body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      font-family: "Segoe UI", sans-serif;
+      background: #121212; color: #eee;
+      display: flex; flex-direction: column; height:100vh; overflow:hidden;
     }
     header {
-      background: #004f97;
-      color: white;
-      padding: 12px 16px;
-      font-weight: bold;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      user-select: none;
+      background: #004f97; color:white;
+      padding:12px; display:flex; align-items:center; user-select:none;
     }
     #backBtn {
-      cursor: pointer;
-      font-size: 1.6rem;
-      margin-right: 16px;
-      user-select: none;
+      font-size:1.4rem; cursor:pointer; margin-right:12px;
     }
     #collegeName {
-      flex-grow: 1;
-      text-align: center;
+      flex:1; text-align:center;
     }
-    /* Chat container */
     .chat-container {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      scroll-behavior: smooth;
-      background: #1a1a1a;
+      flex:1; overflow-y:auto;
+      padding:12px; display:flex; flex-direction:column; gap:10px;
+      background:#1a1a1a;
     }
-    /* Message bubbles */
     .message {
-      max-width: 75%;
-      padding: 12px 16px;
-      border-radius: 20px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      line-height: 1.4;
-      font-size: 1rem;
-      user-select: text;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      max-width:70%; padding:12px 16px; border-radius:20px;
+      line-height:1.4; font-size:1rem; word-wrap:break-word;
     }
     .user {
-      align-self: flex-end;
-      background-color: #1e8e3e;
-      color: white;
-      border-bottom-right-radius: 6px;
-      box-shadow: 0 2px 8px rgba(30, 142, 62, 0.7);
+      align-self:flex-end; background:#1e8e3e; color:white;
+      border-bottom-right-radius:6px;
     }
     .ai {
-      align-self: flex-start;
-      background-color: #333;
-      color: #ddd;
-      border-bottom-left-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+      align-self:flex-start; background:#333; color:#ddd;
+      border-bottom-left-radius:6px;
     }
-    /* Input area fixed bottom */
     .input-area {
-      display: flex;
-      padding: 12px 16px;
-      background: #222;
-      gap: 8px;
+      display:flex; padding:12px; background:#222;
     }
-    .input-area input[type="text"] {
-      flex-grow: 1;
-      padding: 12px 16px;
-      border-radius: 24px;
-      border: none;
-      font-size: 1rem;
-      outline-offset: 2px;
-      color: #eee;
-      background: #333;
+    .input-area input {
+      flex:1; padding:12px; font-size:1rem;
+      border:none; outline:none; color:#eee;
+      background:#333; border-radius:20px;
     }
-    .input-area input[type="text"]::placeholder {
-      color: #bbb;
-    }
-    .input-area input[type="text"]:disabled {
-      background: #555;
-      color: #bbb;
-    }
+    .input-area input::placeholder { color:#bbb; }
     .input-area button {
-      background: #1e8e3e;
-      border: none;
-      color: white;
-      padding: 0 18px;
-      font-size: 1rem;
-      border-radius: 24px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s ease;
+      margin-left:8px; padding:0 18px;
+      background:#1e8e3e; border:none;
+      color:white; font-size:1rem;
+      border-radius:20px; cursor:pointer;
+      transition: background .2s;
     }
-    .input-area button:disabled {
-      background: #555;
-      cursor: not-allowed;
+    .input-area button:disabled { background:#555; cursor:not-allowed; }
+    .input-area button:hover:not(:disabled) { background:#166622; }
+    /* loading spinner */
+    .spinner {
+      width:24px; height:24px;
+      border:3px solid #555;
+      border-top:3px solid #1e8e3e;
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+      align-self:flex-start;
     }
-    .input-area button:hover:not(:disabled) {
-      background-color: #166622;
-    }
-    /* Scrollbar */
+    @keyframes spin { 0% { transform:rotate(0);} 100% {transform:rotate(360deg);} }
     .chat-container::-webkit-scrollbar {
-      width: 8px;
-    }
-    .chat-container::-webkit-scrollbar-track {
-      background: transparent;
+      width:8px;
+      background:transparent;
     }
     .chat-container::-webkit-scrollbar-thumb {
-      background-color: #666;
-      border-radius: 4px;
+      background:#666; border-radius:4px;
     }
   </style>
 </head>
 <body>
   <header>
-    <span id="backBtn" title="Back to homepage" role="button" tabindex="0">←</span>
-    <div id="collegeName" aria-live="polite" aria-atomic="true">Loading College...</div>
+    <div id="backBtn" title="Back" role="button">←</div>
+    <div id="collegeName">Loading...</div>
   </header>
 
-  <main class="chat-container" id="chatContainer" aria-live="polite" aria-relevant="additions">
-    <!-- Chat messages appear here -->
-  </main>
+  <main class="chat-container" id="chatContainer"></main>
 
-  <form class="input-area" id="chatForm" aria-label="Chat input area">
-    <input
-      type="text"
-      id="messageInput"
-      autocomplete="off"
-      placeholder="Ask me anything about your college..."
-      aria-label="Type your message here"
-      required
-      spellcheck="false"
-    />
-    <button type="submit" aria-label="Send message">Send</button>
+  <form class="input-area" id="chatForm">
+    <input id="messageInput" type="text" placeholder="Ask anything…" autocomplete="off" required>
+    <button type="submit">Send</button>
   </form>
 
   <script>
-    // Your OpenRouter.ai API key here
+    // Your OpenRouter API key:
     const API_KEY = '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';
 
     const chatContainer = document.getElementById('chatContainer');
@@ -164,80 +98,63 @@
     const collegeNameDiv = document.getElementById('collegeName');
     const backBtn = document.getElementById('backBtn');
 
-    // Load selected college or default to Unknown College
     const college = localStorage.getItem('selectedCollege') || 'Unknown College';
     collegeNameDiv.textContent = college;
 
-    // Back button navigation
-    backBtn.addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
-    backBtn.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        window.location.href = 'index.html';
-      }
-    });
+    backBtn.addEventListener('click', () => window.location.href = 'index.html');
 
-    // Append message bubble to chat container
-    function appendMessage(text, sender = 'ai') {
+    function appendMessage(text, sender) {
       const div = document.createElement('div');
-      div.classList.add('message', sender);
+      div.className = 'message ' + sender;
       div.textContent = text;
       chatContainer.appendChild(div);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Call OpenRouter GPT API
     async function askGPT(question) {
       const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
       const payload = {
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
-          { role: 'system', content: `You are a helpful assistant for ABUAD college: ${college}. Answer clearly and concisely.` },
-          { role: 'user', content: question }
+          { role:'system', content:`You are ABUAD college assistant. College: ${college}.` },
+          { role:'user', content: question }
         ],
-        temperature: 0.7,
-        max_tokens: 600
+        temperature:0.7, max_tokens:600
       };
-
       try {
         const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`
-          },
-          body: JSON.stringify(payload)
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${API_KEY}` },
+          body:JSON.stringify(payload)
         });
-
-        if (!res.ok) {
-          throw new Error(`API error: ${res.statusText}`);
-        }
-
         const data = await res.json();
+        if(!res.ok) throw new Error(data.error?.message || res.statusText);
         return data.choices[0].message.content.trim();
-
-      } catch (error) {
-        console.error('OpenRouter API error:', error);
-        return 'Sorry, I am having trouble responding right now. Please try again later.';
+      } catch(e) {
+        console.error(e);
+        return '⚠️ Error: ' + (e.message || 'Please try again later.');
       }
     }
 
-    // Handle chat form submission
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const userMessage = messageInput.value.trim();
-      if (!userMessage) return;
+      const text = messageInput.value.trim();
+      if (!text) return;
 
-      appendMessage(userMessage, 'user');
+      appendMessage(text, 'user');
       messageInput.value = '';
       messageInput.disabled = true;
       chatForm.querySelector('button').disabled = true;
 
-      const aiResponse = await askGPT(userMessage);
+      const spinner = document.createElement('div');
+      spinner.className = 'spinner';
+      chatContainer.appendChild(spinner);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
-      appendMessage(aiResponse, 'ai');
+      const reply = await askGPT(text);
+
+      spinner.remove();
+      appendMessage(reply, 'ai');
 
       messageInput.disabled = false;
       chatForm.querySelector('button').disabled = false;
