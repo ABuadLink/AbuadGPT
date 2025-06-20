@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ABUAD AI College Chat</title>
   <style>
-    /* Reset & basics */
+    /* Basic reset */
     * {
       box-sizing: border-box;
     }
     body {
-      margin: 0; padding: 0;
+      margin: 0;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background-color: #121212;
       color: #eee;
@@ -19,28 +19,19 @@
       height: 100vh;
       overflow: hidden;
     }
-    body.light {
-      background-color: #f5f5f5;
-      color: #222;
-    }
     header {
       background: #004f97;
       color: white;
       padding: 12px 16px;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       user-select: none;
-    }
-    body.light header {
-      background: #0073e6;
-      color: white;
     }
     #backBtn {
       cursor: pointer;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       margin-right: 16px;
       user-select: none;
     }
@@ -57,37 +48,33 @@
       flex-direction: column;
       gap: 10px;
       scroll-behavior: smooth;
+      background: #1a1a1a;
     }
     /* Message bubbles */
     .message {
-      max-width: 70%;
-      padding: 10px 14px;
-      border-radius: 18px;
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 20px;
       white-space: pre-wrap;
       word-wrap: break-word;
-      user-select: text;
       line-height: 1.4;
       font-size: 1rem;
+      user-select: text;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     }
     .user {
       align-self: flex-end;
       background-color: #1e8e3e;
       color: white;
-      border-bottom-right-radius: 4px;
-    }
-    body.light .user {
-      background-color: #2ca02c;
-      color: white;
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 2px 8px rgba(30, 142, 62, 0.7);
     }
     .ai {
       align-self: flex-start;
       background-color: #333;
       color: #ddd;
-      border-bottom-left-radius: 4px;
-    }
-    body.light .ai {
-      background-color: #ddd;
-      color: #222;
+      border-bottom-left-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.7);
     }
     /* Input area fixed bottom */
     .input-area {
@@ -96,31 +83,30 @@
       background: #222;
       gap: 8px;
     }
-    body.light .input-area {
-      background: #eee;
-    }
     .input-area input[type="text"] {
       flex-grow: 1;
-      padding: 10px 12px;
-      border-radius: 20px;
+      padding: 12px 16px;
+      border-radius: 24px;
       border: none;
       font-size: 1rem;
       outline-offset: 2px;
+      color: #eee;
+      background: #333;
+    }
+    .input-area input[type="text"]::placeholder {
+      color: #bbb;
     }
     .input-area input[type="text"]:disabled {
       background: #555;
       color: #bbb;
     }
-    body.light .input-area input[type="text"] {
-      color: #222;
-    }
     .input-area button {
       background: #1e8e3e;
       border: none;
       color: white;
-      padding: 0 16px;
+      padding: 0 18px;
       font-size: 1rem;
-      border-radius: 20px;
+      border-radius: 24px;
       cursor: pointer;
       user-select: none;
       transition: background-color 0.2s ease;
@@ -129,14 +115,8 @@
       background: #555;
       cursor: not-allowed;
     }
-    body.light .input-area button {
-      background: #2ca02c;
-    }
     .input-area button:hover:not(:disabled) {
       background-color: #166622;
-    }
-    body.light .input-area button:hover:not(:disabled) {
-      background-color: #1f7a1f;
     }
     /* Scrollbar */
     .chat-container::-webkit-scrollbar {
@@ -149,123 +129,16 @@
       background-color: #666;
       border-radius: 4px;
     }
-    body.light .chat-container::-webkit-scrollbar-thumb {
-      background-color: #aaa;
-    }
-    /* Settings 3-dot */
-    #settingsToggle {
-      cursor: pointer;
-      font-size: 1.6rem;
-      user-select: none;
-      position: relative;
-    }
-    /* Settings panel popup */
-    #settingsPanel {
-      display: none;
-      position: absolute;
-      top: 40px;
-      right: 0;
-      background: #222;
-      border: 1px solid #444;
-      border-radius: 6px;
-      width: 220px;
-      padding: 12px 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-      z-index: 100;
-    }
-    body.light #settingsPanel {
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      color: #222;
-    }
-    #settingsPanel label {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 1rem;
-      user-select: none;
-    }
-    #settingsPanel button {
-      width: 100%;
-      padding: 8px 0;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: none;
-      background-color: #1e8e3e;
-      color: white;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s ease;
-    }
-    #settingsPanel button:hover {
-      background-color: #166622;
-    }
-    body.light #settingsPanel button {
-      background-color: #2ca02c;
-    }
-    body.light #settingsPanel button:hover {
-      background-color: #1f7a1f;
-    }
-    /* Switch toggle */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: 0.3s;
-      border-radius: 24px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #1e8e3e;
-    }
-    input:checked + .slider:before {
-      transform: translateX(20px);
-    }
   </style>
 </head>
 <body>
   <header>
-    <span id="backBtn" title="Back to homepage" aria-label="Back to homepage" role="button" tabindex="0">←</span>
-    <div id="collegeName" aria-live="polite" aria-atomic="true" aria-relevant="text">Loading College...</div>
-    <div id="settingsToggle" title="Settings menu" aria-haspopup="true" aria-expanded="false" role="button" tabindex="0">⋮</div>
-    <div id="settingsPanel" role="menu" aria-hidden="true" tabindex="-1">
-      <label for="themeToggle">Dark / Light Mode
-        <label class="switch">
-          <input type="checkbox" id="themeToggle" aria-checked="false" role="switch" />
-          <span class="slider"></span>
-        </label>
-      </label>
-      <button id="goHomeBtn" role="menuitem">Back to Homepage</button>
-      <button id="shareBtn" role="menuitem">Share this App</button>
-    </div>
+    <span id="backBtn" title="Back to homepage" role="button" tabindex="0">←</span>
+    <div id="collegeName" aria-live="polite" aria-atomic="true">Loading College...</div>
   </header>
 
   <main class="chat-container" id="chatContainer" aria-live="polite" aria-relevant="additions">
-    <!-- Chat messages will appear here -->
+    <!-- Chat messages appear here -->
   </main>
 
   <form class="input-area" id="chatForm" aria-label="Chat input area">
@@ -276,55 +149,26 @@
       placeholder="Ask me anything about your college..."
       aria-label="Type your message here"
       required
+      spellcheck="false"
     />
     <button type="submit" aria-label="Send message">Send</button>
   </form>
 
   <script>
-    // Replace YOUR_OPENROUTER_API_KEY_HERE with your actual OpenRouter.ai API key
-    const API_KEY = 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;
+    // Your OpenRouter.ai API key here
+    const API_KEY = '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';
 
     const chatContainer = document.getElementById('chatContainer');
     const chatForm = document.getElementById('chatForm');
     const messageInput = document.getElementById('messageInput');
     const collegeNameDiv = document.getElementById('collegeName');
-    const settingsToggle = document.getElementById('settingsToggle');
-    const settingsPanel = document.getElementById('settingsPanel');
-    const themeToggle = document.getElementById('themeToggle');
     const backBtn = document.getElementById('backBtn');
-    const goHomeBtn = document.getElementById('goHomeBtn');
-    const shareBtn = document.getElementById('shareBtn');
 
-    // Load college from localStorage or default
+    // Load selected college or default to Unknown College
     const college = localStorage.getItem('selectedCollege') || 'Unknown College';
     collegeNameDiv.textContent = college;
 
-    // Toggle settings panel
-    function toggleSettings() {
-      const isVisible = settingsPanel.style.display === 'block';
-      settingsPanel.style.display = isVisible ? 'none' : 'block';
-      settingsToggle.setAttribute('aria-expanded', !isVisible);
-      if (!isVisible) {
-        settingsPanel.focus();
-      }
-    }
-    settingsToggle.addEventListener('click', toggleSettings);
-    settingsToggle.addEventListener('keydown', e => {
-      if(e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleSettings();
-      }
-    });
-
-    // Close settings if clicked outside
-    document.addEventListener('click', (e) => {
-      if (!settingsPanel.contains(e.target) && e.target !== settingsToggle) {
-        settingsPanel.style.display = 'none';
-        settingsToggle.setAttribute('aria-expanded', false);
-      }
-    });
-
-    // Back to homepage
+    // Back button navigation
     backBtn.addEventListener('click', () => {
       window.location.href = 'index.html';
     });
@@ -334,25 +178,8 @@
         window.location.href = 'index.html';
       }
     });
-    goHomeBtn.addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
 
-    // Share app
-    shareBtn.addEventListener('click', () => {
-      const url = window.location.href;
-      if (navigator.share) {
-        navigator.share({
-          title: 'ABUAD AI College Chat',
-          text: 'Ask anything about your ABUAD college!',
-          url: url
-        }).catch(() => alert('Sharing not supported'));
-      } else {
-        alert('Copy this link to share:\n' + url);
-      }
-    });
-
-    // Append message bubble
+    // Append message bubble to chat container
     function appendMessage(text, sender = 'ai') {
       const div = document.createElement('div');
       div.classList.add('message', sender);
@@ -361,14 +188,13 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // OpenRouter API call
+    // Call OpenRouter GPT API
     async function askGPT(question) {
       const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-
       const payload = {
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a helpful assistant specialized for ABUAD college questions.' },
+          { role: 'system', content: `You are a helpful assistant for ABUAD college: ${college}. Answer clearly and concisely.` },
           { role: 'user', content: question }
         ],
         temperature: 0.7,
@@ -376,7 +202,7 @@
       };
 
       try {
-        const response = await fetch(endpoint, {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -385,24 +211,22 @@
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-          throw new Error(`OpenRouter API error: ${response.statusText}`);
+        if (!res.ok) {
+          throw new Error(`API error: ${res.statusText}`);
         }
 
-        const data = await response.json();
-
+        const data = await res.json();
         return data.choices[0].message.content.trim();
 
       } catch (error) {
-        console.error('Error with OpenRouter API:', error);
+        console.error('OpenRouter API error:', error);
         return 'Sorry, I am having trouble responding right now. Please try again later.';
       }
     }
 
-    // Send message handler
+    // Handle chat form submission
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const userMessage = messageInput.value.trim();
       if (!userMessage) return;
 
@@ -419,42 +243,6 @@
       chatForm.querySelector('button').disabled = false;
       messageInput.focus();
     });
-
-    // Theme toggle
-    function loadTheme() {
-      const saved = localStorage.getItem('theme');
-      if (saved === 'light') {
-        document.body.classList.remove('dark');
-        document.body.classList.add('light');
-        themeToggle.checked = true;
-        themeToggle.setAttribute('aria-checked', 'true');
-      } else {
-        document.body.classList.remove('light');
-        document.body.classList.add('dark');
-        themeToggle.checked = false;
-        themeToggle.setAttribute('aria-checked', 'false');
-      }
-    }
-    loadTheme();
-
-    themeToggle.addEventListener('change', () => {
-      if (themeToggle.checked) {
-        document.body.classList.add('light');
-        document.body.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-        themeToggle.setAttribute('aria-checked', 'true');
-      } else {
-        document.body.classList.add('dark');
-        document.body.classList.remove('light');
-        localStorage.setItem('theme', 'dark');
-        themeToggle.setAttribute('aria-checked', 'false');
-      }
-    });
-
-    // Initialize page as dark mode by default if nothing saved
-    if (!localStorage.getItem('theme')) {
-      document.body.classList.add('dark');
-    }
   </script>
 </body>
 </html>
